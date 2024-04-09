@@ -1,0 +1,165 @@
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #c0c0c0;
+    text-align: center;
+}
+
+li {
+    display: inline-block;
+    border: 2px solid #808080;
+    margin: 10px;
+    border-radius: 5px;
+}
+
+li a {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover {
+    background-color: #d9d9d9;
+}
+
+.active {
+    background-color: #ffffff;
+}
+
+body {
+    font-family: Georgia, sans-serif;
+    margin: 0;
+    background-color: #ffffff;
+}
+
+.center-div-top {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    width: 100%;
+    height: 100vh;
+    background-color: #ffffff;
+}
+
+.preferences-box,
+.members-box {
+    width: 45%;
+    padding: 20px;
+    border: 2px solid #ccc;
+    border-radius: 10px;
+    margin-right: 20px;
+}
+
+.preferences-box {
+    float: left;
+}
+
+.members-box {
+    float: right;
+}
+
+.center-div-top::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+.center-div {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.form {
+    border: 5px solid #808080;
+    padding: 20px;
+    border-radius: 15px;
+    width: 50%;
+    max-width: 600px;
+}
+
+input {
+    gap: 10px;
+    position: relative;
+    padding: 5px;
+    border-radius: 5px;
+    border: 2px solid #808080;
+}
+
+input[type='radio']:hover {
+    background-color: #ffffff;
+}
+
+input[type='submit'] {
+    background-color: #f2f2f2;
+    color: black;
+    padding: 10px 50px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: large;
+}
+
+input[type='submit']:hover,
+.back-button:hover {
+    background-color: #a6a6a6;
+}
+
+.subtitle {
+    font-size: large;
+    font-style: italic;
+}
+
+.text-left {
+    text-align: left;
+}
+
+select {
+    padding: 5px;
+    border-radius: 5px;
+    border: 2px solid #808080;
+}
+
+option {
+    padding: 5px;
+    border-radius: 5px;
+    border: 2px solid #808080;
+}
+
+.text-important {
+    font-weight: bold;
+}
+
+.back-button {
+    background-color: #f2f2f2;
+    color: black;
+    padding: 15px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: inline-block;
+    margin: 10px;
+    text-decoration: none;
+    color: black;
+    font-size: medium;
+}
+
+.back-button:hover {
+    background-color: #a6a6a6;
+}
+
+.img-container {
+    text-align: center;
+}
+
+.center-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}

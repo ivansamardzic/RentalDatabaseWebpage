@@ -1,0 +1,248 @@
+-- Ivan Samardzic 20296563 - April 6, 2024
+drop database if exists rentalDB;
+create database rentalDB;
+use rentalDB;
+
+create table person(
+    id char(5) not null primary key,
+    fName varchar(255) not null,
+    lName varchar(255) not null,
+    phoneNum char(10) not null unique
+);
+
+create table owner(
+    id char(5) not null primary key,
+    foreign key(id) references person(id) on delete cascade
+);
+
+create table manager(
+    id char(5) not null primary key,
+    foreign key(id) references person(id) on delete cascade
+);
+
+create table property(
+    id int not null primary key,
+    cost decimal(10,2) not null,
+    accessibile enum('yes', 'no') not null,
+    street varchar(255) not null,
+    apartementNum varchar(255),
+	city varchar(255) not null,
+    postalCode char(7) not null,
+	province char(2) not null,
+    parking enum('yes', 'no') not null,
+    dateListed date not null,
+    numBathrooms int not null,
+    numBedrooms int not null,
+    laundry enum('ensuite', 'shared') not null,
+    -- "Manages" relationship
+    managerId char(5),
+    managedSince date,
+    foreign key(managerId) references manager(id) on delete set null
+);
+
+create table house(
+    id int not null primary key,
+    fenced enum('yes', 'no') not null,
+    type enum('detached', 'semi-detached') not null,
+    foreign key(id) references property(id) on delete cascade
+);
+
+create table apartment(
+    id int not null primary key,
+    floor int not null,
+    elevator enum('yes', 'no') not null,
+    foreign key(id) references property(id) on delete cascade
+);
+
+create table room(
+    id int not null primary key,
+    numRoomates int not null,
+    kitchen enum('yes', 'no') not null,
+    foreign key(id) references property(id) on delete cascade    
+);
+
+create table furnishings(
+    roomId int not null,
+    furnishingType varchar(255) not null,
+    primary key(roomId, furnishingType),
+    foreign key(roomId) references room(id) on delete cascade
+);
+
+create table rentalGroup(
+    code int not null primary key,
+    parking enum('yes', 'no'),
+    accessibile enum('yes', 'no'),
+    numBathrooms int,
+    numBedrooms int,
+    maxCost decimal(10,2),
+    propertyType enum('house', 'apartment', 'room'),
+    laundry enum('ensuite', 'shared'),
+    -- "Leases" relationship
+    propertyId int,
+    leaseCost decimal(10,2),
+    leaseSigned date,
+    leaseEnd date,
+    foreign key(propertyId) references property(id) on delete set null
+);
+
+create table renter(
+    id char(5) not null primary key,
+    studentId int not null unique,
+    gradYear year not null,
+    program varchar(255) not null,
+    foreign key(id) references person(id) on delete cascade,
+    -- "In" relationship
+    groupCode int,
+    foreign key(groupCode) references rentalGroup(code) on delete set null
+);
+
+create table owns(
+    ownerId char(5) not null,
+    propertyId int not null,
+    primary key(ownerId, propertyId),
+    foreign key(ownerId) references owner(id) on delete cascade,
+    foreign key(propertyId) references property(id) on delete cascade
+);
+
+-- populating person---------------------------------------------------------------------------------------------------------------
+insert into person (id, fName, lName, phoneNum) values
+-- Owners
+('AB123', 'Alice', 'Smith', '4161234561'),
+('CD234', 'Bob', 'Johnson', '4162345677'),
+('EF345', 'Charlie', 'Brown', '4163456733'),
+('GH456', 'David', 'Lee', '4164567864'),
+('IJ567', 'Emily', 'Wong', '4165677905'),
+('KL678', 'Frank', 'Garcia', '4166789116'),
+-- Renters
+('MN789', 'Grace', 'Martinez', '4167340127'),
+('OP890', 'Henry', 'Lopez', '4168978238'),
+('QR901', 'Isabella', 'Perez', '4169012349'),
+('ST012', 'Jacob', 'Gonzalez', '4160123450'),
+('UV123', 'Kevin', 'Rodriguez', '4161267561'),
+('WX234', 'Lily', 'Hernandez', '4162345672'),
+-- Managers
+('YZ345', 'Michael', 'Hill', '4163456783'),
+('AB456', 'Nora', 'Young', '4164567894'),
+('CD567', 'Olivia', 'King', '4165678905'),
+('EF678', 'Peter', 'Evans', '4166789016'),
+('GH789', 'Queenie', 'Adams', '4167890127'),
+('IJ890', 'Robert', 'Campbell', '4168901238');
+
+
+-- populating owner------------------------------------------------------------------------------------------------------------------
+insert into owner (id) values
+('AB123'),
+('CD234'),
+('EF345'),
+('GH456'),
+('IJ567'),
+('KL678');
+
+-- populating manager----------------------------------------------------------------------------------------------------------------
+insert into manager (id) values
+('YZ345'),
+('AB456'),
+('CD567'),
+('EF678'),
+('GH789'),
+('IJ890');
+
+-- populating property---------------------------------------------------------------------------------------------------------------
+insert into property (id, cost, accessibile, street, apartementNum, city, postalCode, province, parking, dateListed, numBathrooms, numBedrooms, laundry, managerId, managedSince) values
+(1121, 2000.00, 'yes', '1234 Elm St', 'Apt 1', 'Toronto', 'M1M 1M1', 'ON', 'yes', '2021-09-01', 2, 2, 'ensuite', 'YZ345', '2021-09-01'),
+(2342, 1500.00, 'yes', '5678 Oak St', 'Apt 2', 'Toronto', 'M2M 2M2', 'ON', 'yes', '2021-09-01', 1, 1, 'shared', 'AB456', '2021-09-01'),
+(3432, 4000.00, 'yes', '9101 Maple St', 'NULL', 'Toronto', 'M3M 3M3', 'ON', 'yes', '2021-09-01', 3, 3, 'ensuite', 'CD567', '2021-09-01'),
+(4990, 3000.00, 'yes', '1123 Pine St', 'NULL', 'Toronto', 'M4M 4M4', 'ON', 'no', '2021-09-01', 2, 2, 'shared', 'EF678', '2021-09-01'),
+(5345, 1500.00, 'yes', '4567 Birch St', 'NULL', 'Toronto', 'M5M 5M5', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'GH789', '2021-09-01'),
+(6867, 1500.00, 'yes', '8910 Cedar St', 'NULL', 'Toronto', 'M6M 6M6', 'ON', 'no', '2021-09-01', 1, 1, 'shared', 'IJ890', '2021-09-01'),
+(1060, 1500.00, 'yes', '80 Oakmount St', 'Apt 40', 'Toronto', 'M7M 7M7', 'ON', 'no', '2021-09-01', 1, 1, 'shared', 'IJ890', '2021-09-01'),
+(3000, 1500.00, 'yes', '80 Oakmount St', 'Apt 41', 'Toronto', 'M7M 7M8', 'ON', 'no', '2021-09-01', 1, 1, 'shared', 'IJ890', '2021-09-01'),
+(4000, 1500.00, 'yes', '80 Oakmount St', 'Apt 42', 'Toronto', 'M7M 7M9', 'ON', 'no', '2021-09-01', 1, 1, 'shared', 'IJ890', '2021-09-01'),
+(5000, 1500.00, 'yes', '80 Oakmount St', 'Apt 43', 'Toronto', 'M0M 7M9', 'ON', 'no', '2021-09-01', 1, 1, 'shared', 'IJ890', '2021-09-01'),
+(2222, 3500.00, 'yes', '2 Field Ln', 'NULL', 'Toronto', 'M2F 6O0', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'CD567', '2021-09-01'),
+(3333, 1500.00, 'yes', '3 Field Ln', 'NULL', 'Toronto', 'M2F 6O1', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'CD567', '2021-09-01'),
+(4444, 4500.00, 'yes', '4 Field Ln', 'NULL', 'Toronto', 'M2F 6O2', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'CD567', '2021-09-01'),
+(5555, 1500.00, 'yes', '5 Field Ln', 'NULL', 'Toronto', 'M2F 6O3', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'CD567', '2021-09-01'),
+(1133, 3500.00, 'yes', '99 Arch Rd', 'NULL', 'Toronto', 'M0T 6Y0', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'GH789', '2021-09-01'),
+(2233, 1500.00, 'yes', '99 Arch Rd', 'NULL', 'Toronto', 'M0T 6Y0', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'GH789', '2021-09-01'),
+(9933, 1500.00, 'yes', '99 Arch Rd', 'NULL', 'Toronto', 'M0T 6Y0', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'GH789', '2021-09-01'),
+(4433, 1000.00, 'yes', '99 Arch Rd', 'NULL', 'Toronto', 'M0T 6Y0', 'ON', 'yes', '2021-09-01', 1, 1, 'ensuite', 'GH789', '2021-09-01');
+
+
+-- populating house-------------------------------------------------------------------------------------------------------------------
+insert into house (id, fenced, type) values
+(3432, 'yes', 'detached'),
+(4990, 'no', 'semi-detached'),
+(2222, 'yes', 'detached'),
+(3333, 'yes', 'detached'),
+(4444, 'yes', 'detached'),
+(5555, 'no', 'detached');
+
+
+-- populating apartment----------------------------------------------------------------------------------------------------------------
+insert into apartment (id, floor, elevator) values
+(1121, 1, 'yes'),
+(2342, 2, 'no'),
+(1060, 4, 'yes'),
+(3000, 4, 'yes'),
+(4000, 4, 'yes'),
+(5000, 4, 'yes');
+
+-- populating room---------------------------------------------------------------------------------------------------------------------
+insert into room (id, numRoomates, kitchen) values
+(5345, 1, 'yes'),
+(6867, 2, 'no'),
+(1133, 3, 'yes'),
+(2233, 3, 'yes'),
+(9933, 3, 'yes'),
+(4433, 3, 'yes');
+
+-- populating furnishings--------------------------------------------------------------------------------------------------------------
+insert into furnishings (roomId, furnishingType) values
+(5345, 'bed'),
+(5345, 'desk'),
+(5345, 'chair'),
+(5345, 'lamp'),
+(6867, 'bed'),
+(6867, 'desk'),
+(6867, 'chair'),
+(6867, 'lamp');
+
+-- populating rentalGroup--------------------------------------------------------------------------------------------------------------
+insert into rentalGroup (code, parking, accessibile, numBathrooms, numBedrooms, maxCost, propertyType, laundry, propertyId, leaseCost, leaseSigned, leaseEnd) values
+(1000, 'yes', 'yes', 2, 2, 2000.00, 'apartment', 'ensuite', 1121, 2000.00, '2021-09-01', '2022-08-31'),
+(2000, 'no', 'yes', 1, 1, 1500.00, 'apartment', 'shared', 2342, 1500.00, '2021-09-01', '2022-08-31'),
+(3000, 'yes', 'yes', 3, 3, 3000.00, 'house', 'ensuite', 3432, 3000.00, '2021-09-01', '2022-08-31'),
+(4000, 'no', 'yes', 2, 2, 2000.00, 'house', 'shared', 4990, 2000.00, '2021-09-01', '2022-08-31'),
+(5000, 'yes', 'yes', 1, 1, 1500.00, 'room', 'ensuite', 5345, 1500.00, '2021-09-01', '2022-08-31'),
+(6000, 'no', 'yes', 1, 1, 1500.00, 'room', 'shared', 6867, 1500.00, '2021-09-01', '2022-08-31');
+
+-- populating renters-------------------------------------------------------------------------------------------------------------------
+insert into renter (id, studentId, gradYear, program, groupCode) values
+('MN789', 123456789, 2025, 'Computer Science', 1000),
+('OP890', 234567890, 2025, 'Engineering', 2000),
+('QR901', 345678901, 2024, 'Business', 3000),
+('ST012', 456789012, 2024, 'Math', 4000),
+('UV123', 567890123, 2026, 'Biology', 5000),
+('WX234', 678901234, 2026, 'Physics', 6000);
+
+-- populating owns----------------------------------------------------------------------------------------------------------------------
+insert into owns (ownerId, propertyId) values
+('AB123', 1121),
+('CD234', 2342),
+('EF345', 3432),
+('GH456', 4990),
+('IJ567', 5345),
+('KL678', 6867),
+('AB123', 1060),
+('CD234', 3000),
+('EF345', 4000),
+('GH456', 5000),
+('IJ567', 2222),
+('KL678', 3333),
+('AB123', 4444),
+('CD234', 5555),
+('EF345', 1133),
+('GH456', 2233),
+('IJ567', 9933),
+('KL678', 4433);
